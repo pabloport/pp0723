@@ -7,8 +7,8 @@ public class RentalAgreement {
 
     private Tool tool;
     private int rentalDays;
-    private LocalDate checkoutDate;
-    private LocalDate dueDate;
+    private String checkoutDate;
+    private String dueDate;
     private BigDecimal dailyCharge;
     private int chargeDays;
     private BigDecimal subtotal;
@@ -17,19 +17,19 @@ public class RentalAgreement {
     private BigDecimal finalCharge;
 
     public void printAgreement() {
-        System.out.println("Here is your rental agreement: ");
+        System.out.println("----- Here is your rental agreement: -----");
         System.out.println("Tool code: " + tool.getToolCode());
-        System.out.println("Tool type: " + tool.getToolType());
+        System.out.println("Tool type: " + tool.getToolType().getType());
         System.out.println("Tool brand: " + tool.getToolBrand());
         System.out.println("Rental days: " + rentalDays);
         System.out.println("Checkout date: " + checkoutDate);
         System.out.println("Due date: " + dueDate);
-        System.out.println("Daily rental charge: " + checkoutDate);
+        System.out.println("Daily rental charge: $" + dailyCharge);
         System.out.println("Charge days: " + chargeDays);
-        System.out.println("Pre-discount charge: " + subtotal);
+        System.out.println("Pre-discount charge: $" + subtotal);
         System.out.println("Discount percent: " + discountPercent + "%");
-        System.out.println("Discount amount: " + discountAmount);
-        System.out.println("Final charge: " + finalCharge);
+        System.out.println("Discount amount: $" + discountAmount);
+        System.out.println("Final charge: $" + finalCharge);
     }
 
     public Tool getTool() {
@@ -48,19 +48,19 @@ public class RentalAgreement {
         this.rentalDays = rentalDays;
     }
 
-    public LocalDate getCheckoutDate() {
+    public String getCheckoutDate() {
         return checkoutDate;
     }
 
-    public void setCheckoutDate(LocalDate checkoutDate) {
+    public void setCheckoutDate(String checkoutDate) {
         this.checkoutDate = checkoutDate;
     }
 
-    public LocalDate getDueDate() {
+    public String getDueDate() {
         return dueDate;
     }
 
-    public void setDueDate(LocalDate dueDate) {
+    public void setDueDate(String dueDate) {
         this.dueDate = dueDate;
     }
 

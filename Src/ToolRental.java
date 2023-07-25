@@ -5,12 +5,14 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 import java.util.Scanner;
 
 public class ToolRental {
 
     private Scanner scanner;
     private Inventory inventory;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
 
     public ToolRental() {
         scanner = new Scanner(System.in);
@@ -18,35 +20,108 @@ public class ToolRental {
         createTools();
     }
 
-    public void start() {
-        while (true) {
-            // todo need to add while loop for handling wrong inputs
+    public void start() throws Exception {
             System.out.println("Welcome to the Tool Rental Application!");
             System.out.print("Please enter your tool code: ");
             String codeInput = scanner.next();
             Tool tool = inventory.getByToolCode(codeInput);
 
             if (tool == null) {
-                System.out.println("Please enter a valid tool code: ");
-                return;
+                System.out.println("Please enter a valid tool code.");
+                start();
             }
-            System.out.print("Please enter the tool checkout date (MM-DD-YY): ");
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM-dd-yy");
-            LocalDate checkoutDate = LocalDate.parse(scanner.next(), formatter);
-            System.out.println("checkout date -- " + checkoutDate.format(formatter));
 
             System.out.print("Please enter the number of days you'd like to rent the tool: ");
-            // todo add exception handler here
             int rentalDays = scanner.nextInt();
+            if (rentalDays < 1) {
+                throw new Exception("Please enter a rental day amount of 1 or greater.");
+            }
 
             System.out.print("Please enter your discount percentage: ");
-            // todo add exception handler here
             int discountInput = scanner.nextInt();
+            if (discountInput < 0 || discountInput > 100) {
+                throw new Exception("Please enter a discount percentage between 0 and 100.");
+            }
 
-            System.out.println("calculate charge: " + tool.getToolType().getDailyCharge().multiply(BigDecimal.valueOf(rentalDays)));
+            System.out.print("Please enter the tool checkout date (MM/DD/YY): ");
+            LocalDate checkoutDate = LocalDate.parse(scanner.next(), formatter);
+
             calculateTotalCharge(tool, rentalDays, checkoutDate, discountInput);
-            break;
+    }
+
+    private void calculateTotalCharge(Tool tool, int rentalDays, LocalDate checkout, int discountPercent) {
+
+        RentalAgreement rentalAgreement = new RentalAgreement();
+        rentalAgreement.setTool(tool);
+        rentalAgreement.setRentalDays(rentalDays);
+        rentalAgreement.setCheckoutDate(checkout.format(formatter));
+        rentalAgreement.setDiscountPercent(discountPercent);
+        rentalAgreement.setDueDate(checkout.plusDays(rentalDays).format(formatter));
+        rentalAgreement.setDailyCharge(tool.getToolType().getDailyCharge());
+        int chargeDays = calculateChargeDays(tool, rentalDays, checkout);
+        rentalAgreement.setChargeDays(chargeDays);
+        BigDecimal subtotal = tool.getToolType().getDailyCharge().multiply(BigDecimal.valueOf(chargeDays));
+        rentalAgreement.setSubtotal(subtotal);
+        // todo fix rounding, should only be 2 decimals
+        BigDecimal discount = subtotal.multiply(BigDecimal.valueOf(discountPercent).movePointLeft(2));
+        rentalAgreement.setDiscountAmount(discount);
+        BigDecimal totalCharge = subtotal.subtract(discount);
+        rentalAgreement.setFinalCharge(totalCharge);
+        rentalAgreement.printAgreement();
+    }
+
+    private int calculateChargeDays(Tool tool, int rentalDays, LocalDate checkoutDate) {
+        int totalChargeDays = rentalDays;
+        LocalDate rentalDate;
+        boolean holidayCharge = tool.getToolType().isHolidayCharge();
+        boolean weekdayCharge = tool.getToolType().isWeekdayCharge();
+        boolean weekendCharge = tool.getToolType().isWeekendCharge();
+
+        // looping through each date to check if it is chargeable
+        for (int i = 1; i < rentalDays; i++) {
+            rentalDate = checkoutDate.plusDays(i);
+
+            if (!holidayCharge && isHoliday(rentalDate)) {
+                totalChargeDays--;
+            } else if (!weekdayCharge && !isWeekend(rentalDate)) {
+                totalChargeDays--;
+            } else if (!weekendCharge && isWeekend(rentalDate)) {
+                totalChargeDays--;
+            }
         }
+        return totalChargeDays;
+    }
+
+    private boolean isHoliday(LocalDate date) {
+        int checkoutYear = date.getYear();
+        if (date.isEqual(getIndependenceDay(checkoutYear)) || date.isEqual(isLaborDay(checkoutYear))) {
+            return true;
+        }
+        return false;
+    }
+
+    private LocalDate getIndependenceDay(int checkoutYear) {
+        LocalDate independenceDay = LocalDate.of(checkoutYear, Month.JULY, 4);
+
+        if (independenceDay.getDayOfWeek() == DayOfWeek.SATURDAY) {
+            independenceDay = independenceDay.minusDays(1);
+        } else if (independenceDay.getDayOfWeek() == DayOfWeek.SUNDAY) {
+            independenceDay = independenceDay.plusDays(1);
+        }
+        return independenceDay;
+    }
+
+    private LocalDate isLaborDay(int checkoutYear) {
+        LocalDate laborDay = LocalDate.of(checkoutYear, Month.SEPTEMBER, 1);
+        return laborDay.with(TemporalAdjusters.firstInMonth(DayOfWeek.MONDAY));
+    }
+
+    private boolean isWeekend(LocalDate date) {
+        DayOfWeek dayOfWeek = date.getDayOfWeek();
+        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
+            return true;
+        }
+        return false;
     }
 
     private void createTools() {
@@ -61,78 +136,4 @@ public class ToolRental {
         inventory.addTool(new Tool("JAKD", JACKHAMMER, "DeWalt"));
         inventory.addTool(new Tool("JAKR", JACKHAMMER, "Ridgid"));
     }
-
-    private static void calculateTotalCharge(Tool tool, int rentalDays, LocalDate checkout, int discountPercent) {
-        RentalAgreement rentalAgreement = new RentalAgreement();
-        rentalAgreement.setTool(tool);
-        rentalAgreement.setRentalDays(rentalDays);
-        rentalAgreement.setCheckoutDate(checkout);
-        rentalAgreement.setDiscountPercent(discountPercent);
-        rentalAgreement.setDueDate(checkout.plusDays(rentalDays));
-
-        // todo add logic for holidays and discount codes
-        // todo add exception for discount not 0-100
-        BigDecimal subtotal = tool.getToolType().getDailyCharge().multiply(BigDecimal.valueOf(rentalDays));
-        if (discountPercent > 1 && discountPercent < 100) {
-            // todo fix rounding, should only be 2 decimals
-            // todo subtotal might have to be class value for agreement, along with other vars
-            subtotal.subtract(subtotal.multiply(BigDecimal.valueOf(discountPercent).movePointLeft(2)));
-        }
-        rentalAgreement.printAgreement();
-    }
-
-    private static boolean isIndependenceDay(LocalDate date) {
-        LocalDate julyFourth = LocalDate.of(date.getYear(), 7, 4);
-        LocalDate dayBefore = date.minusDays(1);
-        LocalDate dayAfter = date.plusDays(1);
-
-        // Holiday is never observed on a weekend
-        if (!isWeekend(date)) {
-            if (date.isEqual(julyFourth)
-                    || dayBefore.isEqual(julyFourth)
-                    || dayAfter.isEqual(julyFourth)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean isWeekend(LocalDate date) {
-        DayOfWeek dayOfWeek = date.getDayOfWeek();
-        if (dayOfWeek == DayOfWeek.SATURDAY || dayOfWeek == DayOfWeek.SUNDAY) {
-            return true;
-        }
-        return false;
-    }
-
-    private static boolean isLaborDay(LocalDate date) {
-        Month monthOneWeekAgo = date.minusWeeks(1).getMonth();
-        // Because labor day is the first Monday, check the previous Monday's month
-        if (date.getMonth() == Month.SEPTEMBER
-                && date.getDayOfWeek() == DayOfWeek.MONDAY
-                && monthOneWeekAgo != Month.SEPTEMBER) {
-            return true;
-        }
-        return false;
-    }
-
-//    private static void printAgreement(Tool tool, int rentalDays, LocalDate checkout, int discount) {
-//
-//
-//        // todo maybe add more methods that do calculations for days like holiday
-////        BigDecimal totalCharge = calculateTotalCharge(tool, rentalDays, discount);
-//
-////        System.out.println("Your total price is: $" + totalCharge);
-//
-//    }
-
-//    private static LocalDate getClosestWeekday(LocalDate date) {
-//
-//        if (date.getDayOfWeek() == DayOfWeek.SATURDAY) {
-//            return date.minusDays(1);
-//        } else if (date.getDayOfWeek() == DayOfWeek.SUNDAY) {
-//            return date.plusDays(1);
-//        }
-//        return date;
-//    }
 }

@@ -1,7 +1,8 @@
 package Src;
 
-import java.math.BigDecimal;
-import java.time.LocalDate;
+import java.math.RoundingMode;
+import java.text.DecimalFormat;
+import java.time.format.DateTimeFormatter;
 
 public class RentalAgreement {
 
@@ -9,27 +10,31 @@ public class RentalAgreement {
     private int rentalDays;
     private String checkoutDate;
     private String dueDate;
-    private BigDecimal dailyCharge;
+    private double dailyCharge;
     private int chargeDays;
-    private BigDecimal subtotal;
+    private double subtotal;
     private int discountPercent;
-    private BigDecimal discountAmount;
-    private BigDecimal finalCharge;
+    private double discountAmount;
+    private double finalCharge;
 
     public void printAgreement() {
+        DecimalFormat decFormat = new DecimalFormat("0.00");
+        decFormat.setRoundingMode(RoundingMode.UP);
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
+
         System.out.println("----- Here is your rental agreement: -----");
         System.out.println("Tool code: " + tool.getToolCode());
         System.out.println("Tool type: " + tool.getToolType().getType());
         System.out.println("Tool brand: " + tool.getToolBrand());
         System.out.println("Rental days: " + rentalDays);
-        System.out.println("Checkout date: " + checkoutDate);
-        System.out.println("Due date: " + dueDate);
+        System.out.println("Checkout date: " + checkoutDate.formatted(formatter));
+        System.out.println("Due date: " + dueDate.formatted(formatter));
         System.out.println("Daily rental charge: $" + dailyCharge);
         System.out.println("Charge days: " + chargeDays);
-        System.out.println("Pre-discount charge: $" + subtotal);
+        System.out.println("Pre-discount charge: $" + decFormat.format(subtotal));
         System.out.println("Discount percent: " + discountPercent + "%");
-        System.out.println("Discount amount: $" + discountAmount);
-        System.out.println("Final charge: $" + finalCharge);
+        System.out.println("Discount amount: $" + decFormat.format(discountAmount));
+        System.out.println("Final charge: $" + decFormat.format(finalCharge));
     }
 
     public Tool getTool() {
@@ -64,11 +69,11 @@ public class RentalAgreement {
         this.dueDate = dueDate;
     }
 
-    public BigDecimal getDailyCharge() {
+    public double getDailyCharge() {
         return dailyCharge;
     }
 
-    public void setDailyCharge(BigDecimal dailyCharge) {
+    public void setDailyCharge(double dailyCharge) {
         this.dailyCharge = dailyCharge;
     }
 
@@ -80,11 +85,11 @@ public class RentalAgreement {
         this.chargeDays = chargeDays;
     }
 
-    public BigDecimal getSubtotal() {
+    public double getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(BigDecimal subtotal) {
+    public void setSubtotal(double subtotal) {
         this.subtotal = subtotal;
     }
 
@@ -96,19 +101,19 @@ public class RentalAgreement {
         this.discountPercent = discountPercent;
     }
 
-    public BigDecimal getDiscountAmount() {
+    public double getDiscountAmount() {
         return discountAmount;
     }
 
-    public void setDiscountAmount(BigDecimal discountAmount) {
+    public void setDiscountAmount(double discountAmount) {
         this.discountAmount = discountAmount;
     }
 
-    public BigDecimal getFinalCharge() {
+    public double getFinalCharge() {
         return finalCharge;
     }
 
-    public void setFinalCharge(BigDecimal finalCharge) {
+    public void setFinalCharge(double finalCharge) {
         this.finalCharge = finalCharge;
     }
 }

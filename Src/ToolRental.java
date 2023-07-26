@@ -1,6 +1,5 @@
 package Src;
 
-import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.Month;
@@ -60,12 +59,13 @@ public class ToolRental {
         rentalAgreement.setDailyCharge(tool.getToolType().getDailyCharge());
         int chargeDays = calculateChargeDays(tool, rentalDays, checkout);
         rentalAgreement.setChargeDays(chargeDays);
-        BigDecimal subtotal = tool.getToolType().getDailyCharge().multiply(BigDecimal.valueOf(chargeDays));
+        double subtotal = tool.getToolType().getDailyCharge() * chargeDays;
         rentalAgreement.setSubtotal(subtotal);
         // todo fix rounding, should only be 2 decimals
-        BigDecimal discount = subtotal.multiply(BigDecimal.valueOf(discountPercent).movePointLeft(2));
+//        double inputDiscount = double.valueOf(discountPercent).divide(double.valueOf(100));
+        double discount = (subtotal * discountPercent)/100;
         rentalAgreement.setDiscountAmount(discount);
-        BigDecimal totalCharge = subtotal.subtract(discount);
+        double totalCharge = subtotal - discount;
         rentalAgreement.setFinalCharge(totalCharge);
         rentalAgreement.printAgreement();
     }
@@ -126,9 +126,9 @@ public class ToolRental {
 
     private void createTools() {
         // Creating Tool types
-        final ToolType LADDER = new ToolType("Ladder", new BigDecimal("1.99"), true, true, false);
-        final ToolType CHAINSAW = new ToolType("Chainsaw", new BigDecimal("1.49"), true, false, true);
-        final ToolType JACKHAMMER = new ToolType("Jackhammer", new BigDecimal("2.99"), true, false, false);
+        final ToolType LADDER = new ToolType("Ladder", 1.99, true, true, false);
+        final ToolType CHAINSAW = new ToolType("Chainsaw", 1.49, true, false, true);
+        final ToolType JACKHAMMER = new ToolType("Jackhammer", 2.99, true, false, false);
 
         // Adding current tools to inventory
         inventory.addTool((new Tool("CHNS", CHAINSAW, "Stihl")));

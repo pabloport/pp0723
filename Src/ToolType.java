@@ -7,6 +7,9 @@ public class ToolType {
     private boolean weekendCharge;
     private boolean holidayCharge;
 
+    public ToolType() {
+    }
+
     public ToolType(String type, double dailyCharge, boolean weekdayCharge, boolean weekendCharge, boolean holidayCharge) {
         this.type = type;
         this.dailyCharge = dailyCharge;

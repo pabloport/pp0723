@@ -1,7 +1,5 @@
 package Src;
 
-import java.math.RoundingMode;
-import java.text.DecimalFormat;
 import java.time.format.DateTimeFormatter;
 
 public class RentalAgreement {
@@ -12,14 +10,44 @@ public class RentalAgreement {
     private String dueDate;
     private double dailyCharge;
     private int chargeDays;
-    private double subtotal;
+    private String subtotal;
     private int discountPercent;
-    private double discountAmount;
-    private double finalCharge;
+    private String discountAmount;
+    private String finalCharge;
+
+    public RentalAgreement() {
+    }
+
+    @Override
+    public String toString() {
+        return "RentalAgreement{" +
+                "tool=" + tool +
+                ", rentalDays=" + rentalDays +
+                ", checkoutDate='" + checkoutDate + '\'' +
+                ", dueDate='" + dueDate + '\'' +
+                ", dailyCharge=" + dailyCharge +
+                ", chargeDays=" + chargeDays +
+                ", subtotal=" + subtotal +
+                ", discountPercent=" + discountPercent +
+                ", discountAmount=" + discountAmount +
+                ", finalCharge=" + finalCharge +
+                '}';
+    }
+
+    public RentalAgreement(Tool tool, int rentalDays, String checkoutDate, String dueDate, double dailyCharge, int chargeDays, String subtotal, int discountPercent, String discountAmount, String finalCharge) {
+        this.tool = tool;
+        this.rentalDays = rentalDays;
+        this.checkoutDate = checkoutDate;
+        this.dueDate = dueDate;
+        this.dailyCharge = dailyCharge;
+        this.chargeDays = chargeDays;
+        this.subtotal = subtotal;
+        this.discountPercent = discountPercent;
+        this.discountAmount = discountAmount;
+        this.finalCharge = finalCharge;
+    }
 
     public void printAgreement() {
-        DecimalFormat decFormat = new DecimalFormat("0.00");
-        decFormat.setRoundingMode(RoundingMode.UP);
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("MM/dd/yy");
 
         System.out.println("----- Here is your rental agreement: -----");
@@ -31,10 +59,10 @@ public class RentalAgreement {
         System.out.println("Due date: " + dueDate.formatted(formatter));
         System.out.println("Daily rental charge: $" + dailyCharge);
         System.out.println("Charge days: " + chargeDays);
-        System.out.println("Pre-discount charge: $" + decFormat.format(subtotal));
+        System.out.println("Pre-discount charge: $" + subtotal);
         System.out.println("Discount percent: " + discountPercent + "%");
-        System.out.println("Discount amount: $" + decFormat.format(discountAmount));
-        System.out.println("Final charge: $" + decFormat.format(finalCharge));
+        System.out.println("Discount amount: $" + discountAmount);
+        System.out.println("Final charge: $" + finalCharge);
     }
 
     public Tool getTool() {
@@ -85,11 +113,11 @@ public class RentalAgreement {
         this.chargeDays = chargeDays;
     }
 
-    public double getSubtotal() {
+    public String getSubtotal() {
         return subtotal;
     }
 
-    public void setSubtotal(double subtotal) {
+    public void setSubtotal(String subtotal) {
         this.subtotal = subtotal;
     }
 
@@ -101,19 +129,19 @@ public class RentalAgreement {
         this.discountPercent = discountPercent;
     }
 
-    public double getDiscountAmount() {
+    public String getDiscountAmount() {
         return discountAmount;
     }
 
-    public void setDiscountAmount(double discountAmount) {
+    public void setDiscountAmount(String discountAmount) {
         this.discountAmount = discountAmount;
     }
 
-    public double getFinalCharge() {
+    public String getFinalCharge() {
         return finalCharge;
     }
 
-    public void setFinalCharge(double finalCharge) {
+    public void setFinalCharge(String finalCharge) {
         this.finalCharge = finalCharge;
     }
 }

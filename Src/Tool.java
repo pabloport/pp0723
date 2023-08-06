@@ -6,6 +6,18 @@ public class Tool {
     private ToolType toolType;
     private String toolBrand;
 
+    public Tool() {
+    }
+
+    @Override
+    public String toString() {
+        return "Tool{" +
+                "toolCode='" + toolCode + '\'' +
+                ", toolType=" + toolType +
+                ", toolBrand='" + toolBrand + '\'' +
+                '}';
+    }
+
     public Tool(String toolCode, ToolType toolType, String toolBrand) {
         this.toolCode = toolCode;
         this.toolType = toolType;
